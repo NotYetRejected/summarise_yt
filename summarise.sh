@@ -33,6 +33,10 @@ elif ! [[ "$URL" =~ ^https?:// ]]; then
   exit 1
 fi
 
+# --- Step 0.7: Extract title BEFORE downloading subtitles ---
+TITLE=$(yt-dlp --get-title "$URL")
+echo "Found video title: $TITLE"
+
 # --- Step 1: Download auto subtitles only ---
 yt-dlp --cookies-from-browser firefox --write-auto-subs --skip-download "$URL"
 
@@ -51,6 +55,8 @@ awk 'NR==1 || $0 != prev {print; prev=$0}' transcript.txt > transcript_clean.txt
 
 # --- Step 4: Add prefix prompt ---
 {
+  echo "Video Title: $TITLE"
+  echo ""
   echo "Summarize the following video transcript into a clear, factual narrative. Include only what is explicitly stated: events, actions, statements, or information from the transcript. Do not add any opinions, interpretations, assumptions, or extra commentary. Keep the summary coherent and readable as prose, focusing on the main points, and exclude any irrelevant details."
   cat transcript_clean.txt
 } > to_clipboard.txt
